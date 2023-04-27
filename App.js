@@ -4,6 +4,7 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { createDrawerNavigator, DrawerGroup, DrawerScreen } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, StackActions, TabActions } from '@react-navigation/native';
+
 import COLORS from './src/const/colors';
 import InscriptionScreen from './src/screens/InscriptionScreen';
 import LoginScreen from './src/screens/loginScreen';
@@ -19,14 +20,18 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ActivationForm from './src/screens/ActivationForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import homeScreen from './src/screens/homeScreen';
+import demandeScreen from './src/screens/demandesScreen';
+import demandesScreen from './src/screens/demandesScreen';
+import AddDemande from './src/components/AddDemande';
 
-
+import { HomeIcon as HomeOutline, HeartIcon as HeartOutline, ShoppingBagIcon as BagOutline } from 'react-native-heroicons/outline';
+import { HomeIcon as HomeSolid, HeartIcon as HeartSolid, ShoppingBagIcon as BagSolid } from 'react-native-heroicons/solid';
 
 
 export default function App() {
   const Drawer = createDrawerNavigator();
-  const Tab = createBottomTabNavigator();
   const Stack = createStackNavigator();
+  const Tab = createBottomTabNavigator();
 
 
   const MainStack = createStackNavigator();
@@ -56,6 +61,56 @@ export default function App() {
 
   }, []);
 
+
+  function DemandeTabs() {
+    return (
+      <Tab.Navigator
+        tabBarOptions={{
+          activeTintColor: COLORS.primary,
+          inactiveTintColor: 'lightgray',
+          style: {
+            paddingBottom: 10,
+          },
+
+        }}
+        screenOptions={{
+          tabBarStyle: {
+            marginBottom: 20,
+            borderRadius: 50,
+            marginHorizontal: 20,
+            backgroundColor: "blue",
+
+          }
+        }}
+      >
+        <Tab.Screen name="Ajouter une réclamation" component={AddDemande}
+          options={{
+            title: "Ajouter une réclamation",
+            unmountOnBlur: true,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="add-circle-outline" color='#ed3026' size={size} />
+            )
+          }} />
+        {/* <Tab.Screen name="Details" component={DetailsDemande}
+          options={{
+            title: "Details",
+            unmountOnBlur: true,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="md-create" color={color} size={size} />
+            )
+          }} /> */}
+        <Tab.Screen name="Liste des réclamations" component={demandesScreen}
+          options={{
+            title: "Liste des réclamations",
+            unmountOnBlur: true,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="md-list-circle-outline" color='#ed3026' size={size} />
+            )
+          }} />
+      </Tab.Navigator>
+    );
+  }
+
   if (isLoggedIn) {
     return (
       <>
@@ -84,7 +139,7 @@ export default function App() {
             useLegacyImplementation>
 
             <Drawer.Screen name="Accueil"
-              component={InscriptionScreen}
+              component={homeScreen}
               options={{
                 drawerIcon: ({ color }) => (
                   <Ionicons name="home-outline" size={22} color='#ed3026' />
@@ -112,7 +167,7 @@ export default function App() {
                 )
               }} />
             <Drawer.Screen name="Demande Devis"
-              component={InscriptionScreen}
+              component={demandesScreen}
               options={{
                 drawerIcon: ({ color }) => (
                   <Ionicons name="card-outline" size={22} color='#ed3026' />
@@ -126,7 +181,7 @@ export default function App() {
                 )
               }} />
             <Drawer.Screen name="Réclamations"
-              component={InscriptionScreen}
+              component={DemandeTabs}
               options={{
                 drawerIcon: ({ color }) => (
                   <Ionicons name="ios-chatbox-ellipses-outline" size={22} color='#ed3026' />
