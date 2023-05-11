@@ -26,6 +26,10 @@ import AddDemande from './src/components/AddDemande';
 
 import { HomeIcon as HomeOutline, HeartIcon as HeartOutline, ShoppingBagIcon as BagOutline } from 'react-native-heroicons/outline';
 import { HomeIcon as HomeSolid, HeartIcon as HeartSolid, ShoppingBagIcon as BagSolid } from 'react-native-heroicons/solid';
+import profileView from './src/components/profilView';
+import demandeList from './src/components/demandeList';
+import DetailDemande from './src/components/DetailDemande';
+import ContratsScreen from './src/screens/ContratsScreen';
 
 
 export default function App() {
@@ -66,20 +70,19 @@ export default function App() {
     return (
       <Tab.Navigator
         tabBarOptions={{
-          activeTintColor: COLORS.primary,
-          inactiveTintColor: 'lightgray',
-          style: {
-            paddingBottom: 10,
-          },
+          activeTintColor: '#ed3026',
+          inactiveTintColor: 'white',
+          ActiveBackgroundColor: '#ed3026',
+          inactiveBackgroundColor: COLORS.primary,
 
         }}
         screenOptions={{
           tabBarStyle: {
-            marginBottom: 20,
-            borderRadius: 50,
-            marginHorizontal: 20,
-            backgroundColor: "blue",
-
+            borderRadius: 5,
+            marginHorizontal: 10,
+            //borderColor: '#ed3026',
+            backgroundColor: 'white',
+            marginTop: -20
           }
         }}
       >
@@ -87,8 +90,16 @@ export default function App() {
           options={{
             title: "Ajouter une réclamation",
             unmountOnBlur: true,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="add-circle-outline" color='#ed3026' size={size} />
+            tabBarIcon: ({ color, size, focused }) => (
+              <Ionicons name="add-circle-outline" color={focused ? 'red' : 'white'} size={size} />
+            )
+          }} />
+        <Tab.Screen name="Détails" component={DetailDemande}
+          options={{
+            title: "Détails",
+            unmountOnBlur: true,
+            tabBarIcon: ({ color, size, focused }) => (
+              <Ionicons name="information-circle-outline" color={focused ? 'red' : 'white'} size={size} />
             )
           }} />
         {/* <Tab.Screen name="Details" component={DetailsDemande}
@@ -99,12 +110,12 @@ export default function App() {
               <Ionicons name="md-create" color={color} size={size} />
             )
           }} /> */}
-        <Tab.Screen name="Liste des réclamations" component={demandesScreen}
+        <Tab.Screen name="Liste des réclamations" component={demandeList}
           options={{
             title: "Liste des réclamations",
             unmountOnBlur: true,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="md-list-circle-outline" color='#ed3026' size={size} />
+            tabBarIcon: ({ color, size, focused }) => (
+              <Ionicons name="md-list-circle-outline" color={focused ? 'red' : 'white'} size={size} />
             )
           }} />
       </Tab.Navigator>
@@ -146,14 +157,14 @@ export default function App() {
                 )
               }} />
             <Drawer.Screen name="Mon Profil"
-              component={InscriptionScreen}
+              component={profileView}
               options={{
                 drawerIcon: ({ color }) => (
                   <Ionicons name="person-outline" size={22} color='#ed3026' />
                 )
               }} />
             <Drawer.Screen name="Mes Contrats"
-              component={InscriptionScreen}
+              component={ContratsScreen}
               options={{
                 drawerIcon: ({ color }) => (
                   <Ionicons name="md-copy-outline" size={22} color='#ed3026' />
@@ -194,7 +205,7 @@ export default function App() {
                   <Ionicons name="log-in-outline" size={22} color='#ed3026' />
                 )
               }} />
-            <Drawer.Screen name="Login"
+            {/* <Drawer.Screen name="Login"
               component={LoginScreen}
               options={{
                 drawerIcon: ({ color }) => (
@@ -214,7 +225,7 @@ export default function App() {
                   <MainStack.Screen name="ActivationForm" component={ActivationForm} />
                 </MainStack.Navigator>
               )}
-            </Drawer.Screen>
+            </Drawer.Screen> */}
           </Drawer.Navigator>
         </NavigationContainer>
 

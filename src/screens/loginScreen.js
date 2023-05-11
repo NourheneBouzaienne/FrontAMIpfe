@@ -31,15 +31,17 @@ const LoginScreen = ({ onLogin }) => {
             );
 
             console.log(res);
-            await AsyncStorage.setItem('token', res.data.accessToken)
+            AsyncStorage.setItem("token", "Bearer " + res.data.accessToken);
+            AsyncStorage.setItem("cin", res.data.username);
+
+            console.log(res.data.accessToken)
+            console.log(res.data.username)
             onLogin();
 
         } catch (ex) {
             console.log(ex);
         }
     };
-
-
 
     useEffect(() => {
         const loadFonts = async () => {

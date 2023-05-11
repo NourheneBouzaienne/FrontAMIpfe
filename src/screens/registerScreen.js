@@ -56,7 +56,7 @@ const registerScreen = () => {
         };
         try {
             const res = await client.post(
-                "/api/auth/signup",
+                "/api/auth/signupClient",
                 formData
             );
             console.log(res);

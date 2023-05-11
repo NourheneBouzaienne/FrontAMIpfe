@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import DemandeList from '../components/demandeList'
 
-const demandesScreen = () => {
+const demandesScreen = ({ navigation }) => {
     return (
         <View>
-            <Text>demandesScreen</Text>
+            <DemandeList navigation={navigation} />
         </View>
     )
 }
