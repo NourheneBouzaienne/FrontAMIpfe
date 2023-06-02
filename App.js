@@ -26,10 +26,13 @@ import AddDemande from './src/components/AddDemande';
 
 import { HomeIcon as HomeOutline, HeartIcon as HeartOutline, ShoppingBagIcon as BagOutline } from 'react-native-heroicons/outline';
 import { HomeIcon as HomeSolid, HeartIcon as HeartSolid, ShoppingBagIcon as BagSolid } from 'react-native-heroicons/solid';
-import profileView from './src/components/profilView';
 import demandeList from './src/components/demandeList';
 import DetailDemande from './src/components/DetailDemande';
 import ContratsScreen from './src/screens/ContratsScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import profileView from './src/components/profilView';
+import DetailContratScreen from './src/screens/DetailContratScreen';
+import GarantieContratScreen from './src/screens/GarantieContratScreen';
 
 
 export default function App() {
@@ -65,6 +68,49 @@ export default function App() {
 
   }, []);
 
+  function ContratStackScreen() {
+    return (
+      <MainStack.Navigator>
+        <MainStack.Screen name="Mes Contrats" component={ContratsScreen} options={{
+          headerShown: false,
+          unmountOnBlur: true// Masquer l'en-tête de navigation
+        }} />
+        <MainStack.Screen name="Détails de votre contrat" component={DetailContratScreen} options={{
+          unmountOnBlur: true, // Masquer l'en-tête de navigation 
+          cardStyle: { backgroundColor: '#204393' },
+          headerStyle: {
+            backgroundColor: '#204393', // Couleur de fond de l'en-tête
+            height: 80, // Hauteur de l'en-tête
+            color: 'white',
+          },
+          headerTitleStyle: {
+            color: 'white', // Couleur du texte du titre de l'en-tête
+          },
+          headerTintColor: 'white', // Couleur de la flèche de retour
+
+        }} />
+        <MainStack.Screen name="Détails Garanties" component={GarantieContratScreen} options={{
+          unmountOnBlur: true, // Masquer l'en-tête de navigation 
+        }} />
+
+      </MainStack.Navigator>
+    );
+  }
+
+  function ProfilStackScreen() {
+    return (
+      <MainStack.Navigator>
+        <MainStack.Screen name="Mon Profil" component={ProfileScreen} options={{
+          headerShown: false,
+          unmountOnBlur: true// Masquer l'en-tête de navigation
+        }} />
+        <MainStack.Screen name="Update Profil" component={profileView} options={{
+          unmountOnBlur: true, // Masquer l'en-tête de navigation
+        }} />
+
+      </MainStack.Navigator>
+    );
+  }
 
   function DemandeTabs() {
     return (
@@ -157,14 +203,14 @@ export default function App() {
                 )
               }} />
             <Drawer.Screen name="Mon Profil"
-              component={profileView}
+              component={ProfilStackScreen}
               options={{
                 drawerIcon: ({ color }) => (
                   <Ionicons name="person-outline" size={22} color='#ed3026' />
                 )
               }} />
             <Drawer.Screen name="Mes Contrats"
-              component={ContratsScreen}
+              component={ContratStackScreen}
               options={{
                 drawerIcon: ({ color }) => (
                   <Ionicons name="md-copy-outline" size={22} color='#ed3026' />

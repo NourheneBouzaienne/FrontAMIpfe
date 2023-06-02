@@ -11,10 +11,11 @@ import axios from "axios"
 import COLORS from '../const/colors';
 import * as Font from 'expo-font';
 import { useEffect } from 'react';
-import SelectPicker from 'react-native-form-select-picker'
-import SelectBox from 'react-native-multi-selectbox'
+
 import client from '../API/client';
 import { useNavigation } from '@react-navigation/native';
+import SelectPicker from 'react-native-form-select-picker';
+
 
 
 
@@ -80,7 +81,10 @@ const registerScreen = () => {
                             onSelectedStyle={styles.selectedOptionStyle}
                             placeholder='Vous êtes ?'
                             selectedValue={typePers}
-                            onValueChange={handlePickerChange} >
+                            onValueChange={handlePickerChange}
+                            Icon={() => {
+                                return <Ionicons name="chevron-down" size={20} color="blue" style={{ marginRight: 10 }} />;
+                            }}>
                             <SelectPicker.Item value='Morale' label='Une personne Morale (Entreprise)' />
                             <SelectPicker.Item value='Physique' label='Une personne Physique' />
                         </SelectPicker>

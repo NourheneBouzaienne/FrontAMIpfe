@@ -12,7 +12,7 @@ const ActivationForm = ({ navigation }) => {
     const handleActivation = async () => {
         try {
             const res = await client.post(
-                `http://192.168.90.67:8060/api/auth/activate?activationCode=${activationCode}`
+                `http://192.168.90.125:8060/api/auth/activate?activationCode=${activationCode}`
             );
             console.log(res);
 

@@ -17,8 +17,15 @@ import { useNavigation } from '@react-navigation/native';
 const LoginScreen = ({ onLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [isPasswordVisible, setPasswordVisible] = useState(false);
+
     const navigation = useNavigation();
 
+
+
+    const togglePasswordVisibility = () => {
+        setPasswordVisible(!isPasswordVisible);
+    };
 
     const handleLogin = async () => {
         const formData = {
@@ -33,9 +40,13 @@ const LoginScreen = ({ onLogin }) => {
             console.log(res);
             AsyncStorage.setItem("token", "Bearer " + res.data.accessToken);
             AsyncStorage.setItem("cin", res.data.username);
+            AsyncStorage.setItem("isAuthentificated", res.data.authentificated.toString());
+
 
             console.log(res.data.accessToken)
             console.log(res.data.username)
+            console.log("isAuthentificated")
+
             onLogin();
 
         } catch (ex) {
@@ -73,12 +84,19 @@ const LoginScreen = ({ onLogin }) => {
                     <View style={styles.card}>
                         <TextInput
                             placeholder="Password"
-                            secureTextEntry={true}
+                            secureTextEntry={!isPasswordVisible}
                             style={styles.input}
                             value={password}
                             onChangeText={setPassword}
                         />
-                        <Ionicons name="key-outline" size={22} color='#ed3026' style={styles.icon} />
+                        <TouchableOpacity onPress={togglePasswordVisibility} style={styles.icon}>
+                            <Ionicons
+                                name={isPasswordVisible ? 'eye-off' : 'eye-outline'}
+                                size={22}
+                                color="#ed3026"
+                            />
+                        </TouchableOpacity>
+                        {/*    <Ionicons name="key-outline" size={22} color='#ed3026' style={styles.icon} /> */}
                     </View>
                     <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                         <Text style={styles.loginButtonText}> Se connecter </Text>

@@ -53,6 +53,12 @@ const demandeList = ({ navigation }) => {
         fetchData();
     }, []);
 
+    const formatDate = (dateString) => {
+        const year = dateString.slice(0, 4);
+        const month = dateString.slice(5, 7);
+        const day = dateString.slice(8, 10);
+        return `${day}/${month}/${year}`;
+    };
 
     /*  const renderItem = ({ item }) => (
  
@@ -72,7 +78,7 @@ const demandeList = ({ navigation }) => {
                 <View style={styles.cardHeader}>
                     <View >
                         <Text style={styles.title}>{item.object}</Text>
-                        <Text style={styles.time}>{item.dateCreation}</Text>
+                        <Text style={styles.time}> {formatDate(item.dateCreation)}</Text>
                         <Text style={styles.time}>{item.etat}</Text>
 
                     </View>
