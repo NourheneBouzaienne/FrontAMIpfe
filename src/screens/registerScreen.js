@@ -76,18 +76,34 @@ const registerScreen = () => {
                     <Image source={require('../../assets/AmiLOGO.png')} style={styles.logo} />
                 </View>
                 <View style={styles.formContainer}>
-                    <View>
-                        <SelectPicker
-                            onSelectedStyle={styles.selectedOptionStyle}
-                            placeholder='Vous êtes ?'
-                            selectedValue={typePers}
-                            onValueChange={handlePickerChange}
-                            Icon={() => {
-                                return <Ionicons name="chevron-down" size={20} color="blue" style={{ marginRight: 10 }} />;
-                            }}>
-                            <SelectPicker.Item value='Morale' label='Une personne Morale (Entreprise)' />
-                            <SelectPicker.Item value='Physique' label='Une personne Physique' />
-                        </SelectPicker>
+
+                    <View style={styles.selectBar}>
+                        <View style={styles.selectPicker} >
+                            <SelectPicker
+                                onSelectedStyle={styles.selectedOptionStyle}
+                                placeholder='Cliquer pour sélectionner une option'
+                                placeholderStyle={{ color: '#ed3026', fontFamily: 'Montserrat-Regular', fontSize: 14 }}
+                                selectedValue={typePers}
+                                containerStyle={{
+                                    backgroundColor: COLORS.backgroundNav,
+                                    borderWidth: 2,
+                                    borderRadius: 10,
+                                    marginBottom: 1,
+                                    borderColor: '#ed3026',
+
+
+                                }}
+                                doneButtonText='Done'
+                                doneButtonTextStyle={{ color: '#ed3026', fontFamily: 'Montserrat-Regular' }}
+                                onValueChange={handlePickerChange}
+                            >
+                                <SelectPicker.Item value='' label='Vous êtes ?' disabled={true} />
+                                <SelectPicker.Item value='Morale' label='Une personne Morale (Entreprise)' />
+                                <SelectPicker.Item value='Physique' label='Une personne Physique' />
+                            </SelectPicker>
+                        </View>
+                        <Octicons name="single-select" size={20} color='#ed3026' style={styles.iconSelect} />
+
                     </View>
                     {showForm1 && (
                         <><View style={styles.card}>
@@ -240,6 +256,23 @@ const styles = StyleSheet.create({
         borderColor: COLORS.primary,
         borderWidth: 20
     },
+    selectBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.backgroundNav,
+        borderWidth: 1,
+        borderRadius: 5,
+        marginBottom: 1,
+        borderColor: '#ed3026',
+
+    },
+    selectPicker: {
+        width: '94%'
+    },
+    iconSelect: {
+        width: '6%',
+
+    },
     backgroundImage: {
         flex: 1,
         resizeMode: 'cover',
@@ -313,6 +346,11 @@ const styles = StyleSheet.create({
     selectedOptionStyle: {
         color: '#204393',
         fontWeight: 'bold',
+
+    },
+    label: {
+        color: '#ed3026',
+        fontFamily: 'Montserrat-Regular',
 
     }
 

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -13,17 +13,17 @@ import * as Font from 'expo-font';
 const ContractsScreen = ({ navigation }) => {
     const [contracts, setContracts] = useState([]);
     const [contractsByClient, setContractsByClient] = useState([]);
-    const [isLoading, setIsLoading] = useState(true); // Nouvelle variable d'état
-
+    const [isLoading, setIsLoading] = useState(true);
+    const [isAuthentificated, setIsAuthenticated] = useState(false);
 
     const [newContract, setNewContract] = useState('');
     const [DEBCNT, setDEBCNT] = useState('');
 
     const [cin, setCin] = useState('');
-    const [isAuthentificated, setIsAuthenticated] = useState(true);
-
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [token, setToken] = useState('');
+    const [isLoadingContracts, setIsLoadingContracts] = useState(false);
+
 
     const getCinFromStorage = async () => {
         try {
@@ -40,9 +40,7 @@ const ContractsScreen = ({ navigation }) => {
             // Récupérer l'état d'authentification depuis AsyncStorage
             const storedIsAuthentificated = await AsyncStorage.getItem('isAuthentificated');
             setIsAuthenticated(JSON.parse(storedIsAuthentificated));
-            console.log('Test', isAuthentificated)
-
-
+            console.log('Test', isAuthentificated);
         } catch (error) {
             console.log('Erreur lors de la récupération du CIN depuis AsyncStorage', error);
         }
@@ -51,6 +49,7 @@ const ContractsScreen = ({ navigation }) => {
     const getContrats = async () => {
         if (cin.trim() !== '') {
             try {
+                setIsLoadingContracts(true); // Activation du spinner
                 // Appel API pour récupérer les contrats du client
                 const result = await client.get("/api/auth/Client/ContratsByClient", {
                     headers: {
@@ -60,42 +59,43 @@ const ContractsScreen = ({ navigation }) => {
 
                 // Mettre à jour les contrats dans l'état
                 setContractsByClient(result.data);
+                setIsLoadingContracts(false); // Désactivation du spinner
                 return result.data;
             } catch (error) {
                 console.error(error);
+                setIsLoadingContracts(false); // Désactivation du spinner en cas d'erreur
                 return null;
             }
         }
     };
 
-    /* const loadContracts = async () => {
-        const result = await getContrats();
-        setContractsByClient(result);
-    }; */
-
     useEffect(() => {
-        const loadFonts = async () => {
+        const loadData = async () => {
+            // Charger les polices de caractères
             await Font.loadAsync({
                 'Montserrat-Regular': require('../../assets/fonts/Montserrat-Regular.ttf'),
             });
+
+            // Récupérer les données depuis AsyncStorage
+            await getCinFromStorage();
+
+            if (isAuthentificated) {
+                getContrats()
+                    .then((result) => {
+                        setContractsByClient(result);
+                        setIsLoading(false); // Mettre à jour l'état du chargement
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+            } else {
+                console.log('Non authentifié');
+                setIsLoading(false); // Mettre à jour l'état du chargement
+            }
         };
-        loadFonts();
 
-        getCinFromStorage();
-
-        if (isAuthentificated) {
-            getContrats().then((result) => {
-                setContractsByClient(result);
-                setIsLoading(true); // Mettre à jour l'état du chargement
-            }).catch((error) => {
-                console.error(error);
-                setIsLoading(false); // Mettre à jour l'état du chargement en cas d'erreur
-            });
-        } else {
-            setIsLoading(false); // Mettre à jour l'état du chargement si non authentifié
-            console.log('Non authentifié');
-        }
-    }, []);
+        loadData();
+    }, [isAuthentificated]);
 
     const addContract = async () => {
         if (newContract.trim() !== '' && cin.trim() !== '') {
@@ -112,12 +112,11 @@ const ContractsScreen = ({ navigation }) => {
 
                 if (response.status === 200) {
                     const data = response.data;
-                    setContracts(data);
+                    setContractsByClient(data);
                     setNewContract('');
                     setIsModalVisible(false);
-                    setIsAuthenticated(true)
-                    console.log('devient authentfié')
-
+                    setIsAuthenticated(true);
+                    console.log('devient authentifié');
                 } else {
                     console.log('Erreur lors de la requête API');
                 }
@@ -138,29 +137,32 @@ const ContractsScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.navigate('Détails de votre contrat', { item: item })}>
             <View style={styles.card}>
                 <View style={styles.cardHeader}>
-                    <View >
-                        <Text style={styles.title} >{item.NUMCNT}</Text>
+                    <View>
+                        <Text style={styles.title}>{item.NUMCNT}</Text>
                         <Text style={styles.time}>Produit : {item.LIBPRDT}</Text>
                         <Text style={styles.time}>Agence : {item.NOM_INT}</Text>
                         <View style={styles.stepContainer}>
                             <View style={styles.dateContainer}>
                                 <View style={styles.iconContainer}>
-                                    <MaterialCommunityIcons name="calendar-start" size={20} color='#ed3026' />
+                                    <MaterialCommunityIcons name="calendar-start" size={20} color="#ed3026" />
                                 </View>
                                 <Text style={styles.time}>{formatDate(item.DEBCNT)}</Text>
                             </View>
 
-                            <MaterialCommunityIcons name="ray-start-arrow" size={25} style={{ transform: [{ scaleX: 1.7 }], marginRight: 15, marginLeft: 15, marginTop: 4 }} color='#ed3026' />
+                            <MaterialCommunityIcons
+                                name="ray-start-arrow"
+                                size={25}
+                                style={{ transform: [{ scaleX: 1.7 }], marginRight: 15, marginLeft: 15, marginTop: 4 }}
+                                color="#ed3026"
+                            />
 
                             <View style={styles.dateContainer}>
                                 <View style={styles.iconContainer}>
-                                    <MaterialCommunityIcons name="calendar-end" size={20} color='#ed3026' />
+                                    <MaterialCommunityIcons name="calendar-end" size={20} color="#ed3026" />
                                 </View>
                                 <Text style={styles.time}>{formatDate(item.FINCNT)} </Text>
                             </View>
-
                         </View>
-
                     </View>
                 </View>
             </View>
@@ -168,21 +170,24 @@ const ContractsScreen = ({ navigation }) => {
     );
 
 
-    return (
-        <View>
-            {isAuthentificated ? (
 
+    return (
+
+        <View>
+
+
+            {isAuthentificated ? (
                 <View>
-                    <FlatList
-                        data={contractsByClient}
-                        keyExtractor={item => {
-                            return item.id;
-                        }}
-                        ItemSeparatorComponent={() => {
-                            return <View />;
-                        }}
-                        renderItem={renderItem}
-                    />
+                    {isLoadingContracts ? ( // Affichage du spinner lors du chargement des contrats
+                        <ActivityIndicator />
+                    ) : (
+                        <FlatList
+                            data={contractsByClient}
+                            keyExtractor={(item) => item.id}
+                            ItemSeparatorComponent={() => <View />}
+                            renderItem={renderItem}
+                        />
+                    )}
                 </View>
             ) : (
                 <View>
@@ -191,21 +196,24 @@ const ContractsScreen = ({ navigation }) => {
                         buttonColor="#204393"
                         icon="plus"
                         mode="contained"
-                        onPress={() => setIsModalVisible(true)}> Contrat </Button>
+                        onPress={() => setIsModalVisible(true)}
+                    >
+                        Contrat
+                    </Button>
 
                     <Modal visible={isModalVisible} transparent>
                         <View style={styles.modalContainer}>
                             <View style={[styles.modalContent, { width: 350, height: 250 }]}>
                                 <View style={styles.centeredContent}>
-                                    <Text style={styles.modalTitle}> Ajouter un contrat </Text>
+                                    <Text style={styles.modalTitle}>Ajouter un contrat</Text>
                                 </View>
                                 <TextInput
-                                    label='Numéro de contrat'
+                                    label="Numéro de contrat"
                                     mode="outlined"
-                                    activeOutlineColor='#204393'
+                                    activeOutlineColor="#204393"
                                     outlineColor="#fbfbfb"
                                     value={newContract}
-                                    onChangeText={text => setNewContract(text)}
+                                    onChangeText={(text) => setNewContract(text)}
                                     style={styles.textInput}
                                 />
                                 <View style={styles.buttons}>
@@ -219,8 +227,8 @@ const ContractsScreen = ({ navigation }) => {
                                         Ajouter
                                     </Button>
                                     <Button
-                                        style={{ width: 150, margin: 5, borderColor: '#ed3026' }}
-                                        textColor='#ed3026'
+                                        style={{ width: 150, margin: 5, borderColor: "#ed3026" }}
+                                        textColor="#ed3026"
                                         icon="arrow-expand-left"
                                         mode="outlined"
                                         title="Annuler"
@@ -233,7 +241,7 @@ const ContractsScreen = ({ navigation }) => {
                         </View>
                     </Modal>
                     <View>
-                        <Text>   Liste des contrats :</Text>
+                        <Text>Liste des contrats :</Text>
                         {contracts.map((contract, index) => (
                             <View key={index}>
                                 <Text>Numéro de contrat:</Text>
@@ -251,8 +259,6 @@ const ContractsScreen = ({ navigation }) => {
             )}
         </View>
     );
-
-
 };
 
 export default ContractsScreen;

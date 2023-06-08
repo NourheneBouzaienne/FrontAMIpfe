@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
@@ -14,6 +14,10 @@ import * as Font from 'expo-font';
 const GarantieContratScreen = ({ route, navigation }) => {
     const { item } = route.params;
     const [garanties, setGaranties] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalContent, setModalContent] = useState('');
+    const [selectedItem, setSelectedItem] = useState(null);
+
 
 
     const garantiesContrats = async () => {
@@ -63,26 +67,56 @@ const GarantieContratScreen = ({ route, navigation }) => {
 
     }, [])
 
-
-
     const convertToLowerCase = (str) => {
         return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     };
 
+    const showPopup = (item) => {
+        setSelectedItem(item);
+        setModalVisible(true);
+    };
+
     const renderItem = ({ item }) => (
-        <TouchableOpacity onPress={() => navigation.navigate('Détails de votre contrat', { item: item })}>
-            <View style={styles.card}>
-                <View style={styles.cardHeader}>
+        <View style={styles.card}>
 
-                    <Text style={styles.label} > Libellé </Text>
-                    <Text style={styles.centeredContent}>{convertToLowerCase(item.LIBGRNT)}</Text>
-                    <Text style={styles.label} > Capital assuré </Text>
-                    <Text style={styles.centeredContent} >.......</Text>
-
+            <View style={styles.cardHeader}>
+                <Text style={styles.label} > Libellé </Text>
+                <Text style={styles.centeredContent}>{convertToLowerCase(item.RESULT)}</Text>
+                <Text style={styles.label} > Capital assuré </Text>
+                <View style={styles.capital}>
+                    <Text style={styles.centeredContent} >{item.NBUNITLM} </Text>
+                    <Text style={styles.centeredContent}>
+                        {(() => {
+                            switch (item.UNTLIMIT) {
+                                case 'DT':
+                                    return 'DT';
+                                case 'JJ':
+                                    return 'Jours';
+                                default:
+                                    return item.UNTLIMIT;
+                            }
+                        })()}
+                    </Text>
 
                 </View>
+
             </View>
-        </TouchableOpacity>
+
+            <View style={styles.buttonContainer}>
+                {/* Le bouton moderne en haut à gauche */}
+                <Button
+                    icon="information"
+                    mode="contained"
+                    onPress={() => showPopup(item)}
+                    contentStyle={styles.button}
+                    buttonColor='#204393'
+                    textColor='white'
+                >
+                    Détails garantie
+                </Button>
+            </View>
+        </View>
+
     );
 
     return (
@@ -97,6 +131,21 @@ const GarantieContratScreen = ({ route, navigation }) => {
                 }}
                 renderItem={renderItem}
             />
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalText}>{selectedItem ? selectedItem.BULL : ''}</Text>
+                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                            <Text style={styles.close}>Fermer</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
 
     )
@@ -110,24 +159,42 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+
     },
     modalContent: {
         backgroundColor: 'white',
         padding: 20,
         borderRadius: 8,
-        backgroundColor: '#fbfbfb',
-        elevation: 5,
+        margin: 10,
+        borderWidth: 3,
+        borderColor: '#ed3026'
     },
-
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
+    capital: {
+        flexDirection: 'row'
+    },
+    modalText: {
+        fontSize: 16,
         color: COLORS.primary,
         fontFamily: 'Montserrat-Regular',
+        textAlign: 'justify'
     },
+    close: {
+        fontSize: 16,
+        color: '#ed3026',
+        fontFamily: 'Montserrat-Regular',
+        textAlign: 'center',
+        margin: 10
+    },
+    buttonContainer: {
+        position: 'absolute',
+        bottom: 8,
+        right: 8,
+
+    },
+    button: {
+
+    },
+
     textInput: {
         borderBottomColor: '#999',
         borderBottomWidth: 1,
@@ -165,7 +232,8 @@ const styles = StyleSheet.create({
         borderColor: COLORS.primary,
         borderWidth: 2,
         borderRadius: 10,
-        margin: 15
+        margin: 15,
+        padding: 16
     },
     cardHeader: {
         paddingVertical: 20,

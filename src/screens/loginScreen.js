@@ -1,16 +1,20 @@
 
 
 import React, { useState } from 'react';
-import { StyleSheet, View, ImageBackground, Image, TextInput, TouchableOpacity, Text, ScrollView } from 'react-native';
+import { StyleSheet, View, ImageBackground, Image, TextInput, TouchableOpacity, Text, ScrollView, Modal } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+
 import COLORS from '../const/colors';
 import * as Font from 'expo-font';
 import { useEffect } from 'react';
 import client from '../API/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { Button } from 'react-native-paper';
+
 
 
 
@@ -18,6 +22,8 @@ const LoginScreen = ({ onLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setPasswordVisible] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [showModal, setShowModal] = useState(false);
 
     const navigation = useNavigation();
 
@@ -51,6 +57,12 @@ const LoginScreen = ({ onLogin }) => {
 
         } catch (ex) {
             console.log(ex);
+            if (ex.response && ex.response.status === 401) {
+                // Invalid username or password
+                console.log(ex.response.data);
+                setErrorMessage(ex.response.data);
+                setShowModal(true);
+            }
         }
     };
 
@@ -105,6 +117,25 @@ const LoginScreen = ({ onLogin }) => {
                         <Text style={styles.text} size={3} color={COLORS.primary}>
                             Vous n'avez pas un compte ? Créer Maintenant                        </Text>
                     </TouchableOpacity>
+                    <Modal
+                        visible={showModal}
+                        animationType="slide"
+                        transparent={true}
+                        onRequestClose={() => setShowModal(false)}
+                    >
+                        <View style={styles.modalContainer}>
+
+                            <View style={styles.modalContent}>
+                                <MaterialIcons name="error-outline" size={30} color='#ed3026' style={styles.icon} />
+                                <Text style={styles.errorMessage}>{errorMessage}</Text>
+                                <Button style={{
+                                    width: 150, justifyContent: 'center',
+                                    alignItems: 'center'
+                                }} buttonColor={'#ed3026'} mode="contained" onPress={() => setShowModal(false)} > OK  </Button>
+                            </View>
+                        </View>
+                    </Modal>
+
                 </View>
             </ImageBackground>
         </ScrollView>
@@ -125,6 +156,32 @@ const styles = StyleSheet.create({
     logoContainer: {
         alignItems: 'center',
         marginTop: 160,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Couleur de fond semi-transparente
+
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        height: '20%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 100,
+        borderColor: 'red',
+        borderWidth: 1
+    },
+    errorMessage: {
+        fontSize: 16,
+        marginBottom: 20,
+        color: COLORS.primary,
+        fontFamily: 'Montserrat-Regular',
+        marginTop: 20,
     },
     logo: {
         width: 290,
