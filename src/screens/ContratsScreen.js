@@ -175,10 +175,9 @@ const ContractsScreen = ({ navigation }) => {
 
         <View>
 
-
             {isAuthentificated ? (
                 <View>
-                    {isLoadingContracts ? ( // Affichage du spinner lors du chargement des contrats
+                    {isLoadingContracts ? (
                         <ActivityIndicator />
                     ) : (
                         <FlatList

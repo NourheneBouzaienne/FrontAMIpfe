@@ -33,6 +33,9 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import profileView from './src/components/profilView';
 import DetailContratScreen from './src/screens/DetailContratScreen';
 import GarantieContratScreen from './src/screens/GarantieContratScreen';
+import AddSinistreScreen from './src/screens/AddSinistreScreen';
+import DetailSinistre from './src/screens/DetailSinistre';
+import sinsitreList from './src/screens/sinsitreList';
 
 
 export default function App() {
@@ -168,6 +171,62 @@ export default function App() {
     );
   }
 
+  function SinistreTabs() {
+    return (
+      <Tab.Navigator
+        tabBarOptions={{
+          activeTintColor: '#ed3026',
+          inactiveTintColor: 'white',
+          ActiveBackgroundColor: '#ed3026',
+          inactiveBackgroundColor: COLORS.primary,
+
+        }}
+        screenOptions={{
+          tabBarStyle: {
+            borderRadius: 5,
+            marginHorizontal: 10,
+            //borderColor: '#ed3026',
+            backgroundColor: 'white',
+            marginTop: -20
+          }
+        }}
+      >
+        <Tab.Screen name="Ajouter une réclamation" component={AddSinistreScreen}
+          options={{
+            title: "Déclarer un sinistre",
+            unmountOnBlur: true,
+            tabBarIcon: ({ color, size, focused }) => (
+              <Ionicons name="add-circle-outline" color={focused ? 'red' : 'white'} size={size} />
+            )
+          }} />
+        <Tab.Screen name="Détails" component={DetailSinistre}
+          options={{
+            title: "Détails",
+            unmountOnBlur: true,
+            tabBarIcon: ({ color, size, focused }) => (
+              <Ionicons name="information-circle-outline" color={focused ? 'red' : 'white'} size={size} />
+            )
+          }} />
+        {/* <Tab.Screen name="Details" component={DetailsDemande}
+          options={{
+            title: "Details",
+            unmountOnBlur: true,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="md-create" color={color} size={size} />
+            )
+          }} /> */}
+        <Tab.Screen name="Liste des sinsitres" component={sinsitreList}
+          options={{
+            title: "Liste des sinsitres",
+            unmountOnBlur: true,
+            tabBarIcon: ({ color, size, focused }) => (
+              <Ionicons name="md-list-circle-outline" color={focused ? 'red' : 'white'} size={size} />
+            )
+          }} />
+      </Tab.Navigator>
+    );
+  }
+
   if (isLoggedIn) {
     return (
       <>
@@ -217,7 +276,7 @@ export default function App() {
                 )
               }} />
             <Drawer.Screen name="Mes Sinistres"
-              component={InscriptionScreen}
+              component={SinistreTabs}
               options={{
                 drawerIcon: ({ color }) => (
                   <Ionicons name="car-outline" size={22} color='#ed3026' />

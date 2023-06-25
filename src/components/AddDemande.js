@@ -24,7 +24,9 @@ const AddDemande = () => {
     const [object, setObject] = useState('');
     const [description, setDescription] = useState('');
     const [dateCreation, setDateCreation] = useState('');
-    const [etat, setEtat] = useState('En cours de traitement');
+    const [categ, setCateg] = useState('');
+
+    const [etat, setEtat] = useState('Non traitée');
 
     const [token, setToken] = useState('');
     const [showPicker, setShowPicker] = useState(false);
@@ -49,7 +51,8 @@ const AddDemande = () => {
             object,
             description,
             dateCreation,
-            etat
+            etat,
+            categ
 
         };
         try {
@@ -80,6 +83,31 @@ const AddDemande = () => {
         <View style={styles.container}>
             <View style={styles.card}>
                 <Text style={styles.title}> Votre réclamation concerne ? </Text>
+
+
+                <View style={styles.selectPicker} >
+                    <SelectPicker
+                        onSelectedStyle={styles.selectedOptionStyle}
+                        placeholder='Cliquer ici pour choisir une catégorie'
+                        placeholderStyle={{ color: '#ed3026', fontFamily: 'Montserrat-Regular', fontSize: 12 }}
+                        selectedValue={categ}
+                        containerStyle={{
+                            backgroundColor: COLORS.backgroundNav,
+                            borderWidth: 2,
+                            borderRadius: 10,
+                            marginBottom: 1,
+                            borderColor: '#ed3026',
+
+
+                        }}
+                        doneButtonText='Done'
+                        doneButtonTextStyle={{ color: '#ed3026', fontFamily: 'Montserrat-Regular' }}
+                        onValueChange={text => setCateg(text)}
+                    >
+                        <SelectPicker.Item value='option1' label='option1' />
+                        <SelectPicker.Item value='option2' label='option2' />
+                    </SelectPicker>
+                </View>
 
                 <TextInput
                     label='Objet'
