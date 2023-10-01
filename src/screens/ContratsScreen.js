@@ -15,6 +15,8 @@ const ContractsScreen = ({ navigation }) => {
     const [contractsByClient, setContractsByClient] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthentificated, setIsAuthenticated] = useState(false);
+    const [isAuthentificatedStored, setIsAuthenticatedStored] = useState(false);
+
 
     const [newContract, setNewContract] = useState('');
     const [DEBCNT, setDEBCNT] = useState('');
@@ -23,6 +25,7 @@ const ContractsScreen = ({ navigation }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [token, setToken] = useState('');
     const [isLoadingContracts, setIsLoadingContracts] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
 
     const getCinFromStorage = async () => {
@@ -39,7 +42,9 @@ const ContractsScreen = ({ navigation }) => {
             }
             // Récupérer l'état d'authentification depuis AsyncStorage
             const storedIsAuthentificated = await AsyncStorage.getItem('isAuthentificated');
-            setIsAuthenticated(JSON.parse(storedIsAuthentificated));
+            console.log(storedIsAuthentificated)
+            setIsAuthenticated(storedIsAuthentificated === 'true');
+            setIsAuthenticatedStored(storedIsAuthentificated)
             console.log('Test', isAuthentificated);
         } catch (error) {
             console.log('Erreur lors de la récupération du CIN depuis AsyncStorage', error);
@@ -79,7 +84,7 @@ const ContractsScreen = ({ navigation }) => {
             // Récupérer les données depuis AsyncStorage
             await getCinFromStorage();
 
-            if (isAuthentificated) {
+            if (isAuthentificatedStored) {
                 getContrats()
                     .then((result) => {
                         setContractsByClient(result);
@@ -95,9 +100,17 @@ const ContractsScreen = ({ navigation }) => {
         };
 
         loadData();
-    }, [isAuthentificated]);
-
+    }, [isAuthentificatedStored])
     const addContract = async () => {
+        const contractRegex = /^\d{15}$/
+        if (!contractRegex.test(newContract)) {
+            // Définissez le message d'erreur si le format n'est pas respecté
+            setErrorMessage("Le numéro de contrat doit contenir 15 caractères, exemple 202350000012345.");
+            return; // Empêche l'ajout du contrat en cas d'erreur
+        }
+
+        // Réinitialisez le message d'erreur si la validation réussit
+        setErrorMessage("");
         if (newContract.trim() !== '' && cin.trim() !== '') {
             try {
                 // Appel API pour ajouter un contrat
@@ -113,9 +126,11 @@ const ContractsScreen = ({ navigation }) => {
                 if (response.status === 200) {
                     const data = response.data;
                     setContractsByClient(data);
-                    setNewContract('');
                     setIsModalVisible(false);
-                    setIsAuthenticated(true);
+                    await AsyncStorage.setItem('isAuthentificated', 'true');
+                    setIsAuthenticated(true); // Mettre à jour isAuthentificated
+                    setIsAuthenticatedStored(true); // Mettre à jour isAuthentificatedStored
+                    console.log(isAuthentificated); // Devrait maintenant afficher true
                     console.log('devient authentifié');
                 } else {
                     console.log('Erreur lors de la requête API');
@@ -160,8 +175,14 @@ const ContractsScreen = ({ navigation }) => {
                                 <View style={styles.iconContainer}>
                                     <MaterialCommunityIcons name="calendar-end" size={20} color="#ed3026" />
                                 </View>
-                                <Text style={styles.time}>{formatDate(item.FINCNT)} </Text>
+                                <Text style={styles.time}>{formatDate(item.FINEFFET)} </Text>
                             </View>
+
+                        </View>
+                        <View>
+                            <Button style={{ marginLeft: '30%', width: 140, backgroundColor: '#204393' }}
+                                textColor="white"
+                                mode="contained">DETAILS</Button>
                         </View>
                     </View>
                 </View>
@@ -189,7 +210,7 @@ const ContractsScreen = ({ navigation }) => {
                     )}
                 </View>
             ) : (
-                <View>
+                <><Text style={styles.infoText}> Veuillez ajouter votre numéro de contrat </Text><View>
                     <Button
                         style={{ width: 200, marginLeft: 200 }}
                         buttonColor="#204393"
@@ -202,7 +223,7 @@ const ContractsScreen = ({ navigation }) => {
 
                     <Modal visible={isModalVisible} transparent>
                         <View style={styles.modalContainer}>
-                            <View style={[styles.modalContent, { width: 350, height: 250 }]}>
+                            <View style={[styles.modalContent, { width: 350, height: 300 }]}>
                                 <View style={styles.centeredContent}>
                                     <Text style={styles.modalTitle}>Ajouter un contrat</Text>
                                 </View>
@@ -213,8 +234,7 @@ const ContractsScreen = ({ navigation }) => {
                                     outlineColor="#fbfbfb"
                                     value={newContract}
                                     onChangeText={(text) => setNewContract(text)}
-                                    style={styles.textInput}
-                                />
+                                    style={styles.textInput} />
                                 <View style={styles.buttons}>
                                     <Button
                                         style={{ width: 150, margin: 5, borderColor: "#204393" }}
@@ -236,11 +256,12 @@ const ContractsScreen = ({ navigation }) => {
                                         Annuler
                                     </Button>
                                 </View>
+                                {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
                             </View>
                         </View>
                     </Modal>
                     <View>
-                        <Text>Liste des contrats :</Text>
+                        <Text> liste des contrats</Text>
                         {contracts.map((contract, index) => (
                             <View key={index}>
                                 <Text>Numéro de contrat:</Text>
@@ -250,11 +271,11 @@ const ContractsScreen = ({ navigation }) => {
                                 <Text>Date de début:</Text>
                                 <Text>{formatDate(contract.DEBCNT)}</Text>
                                 <Text>Date de fin:</Text>
-                                <Text>{formatDate(contract.FINCNT)}</Text>
+                                <Text>{formatDate(contract.FINEFFET)}</Text>
                             </View>
                         ))}
                     </View>
-                </View>
+                </View></>
             )}
         </View>
     );
@@ -268,6 +289,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    infoText: {
+        fontSize: 15,
+        marginBottom: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: COLORS.red,
+        fontFamily: 'Montserrat-Regular',
+        margin: 12
+    },
+    errorMessage: {
+        color: COLORS.red,
+        fontSize: 16,
+        marginTop: 10,
     },
     modalContent: {
         backgroundColor: 'white',

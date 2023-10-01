@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Linking } from 'r
 import { AntDesign } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 
-const HomeScreen = () => {
+const NumerosUtiles = () => {
     const emergencyNumbers = [
         { name: 'Police Nationale', number: '197', icon: 'phone' },
         { name: 'Protection Civile', number: '198', icon: 'phone' },
@@ -79,7 +79,7 @@ const HomeScreen = () => {
     );
 };
 
-export default HomeScreen;
+export default NumerosUtiles;
 
 const styles = StyleSheet.create({
     container: {

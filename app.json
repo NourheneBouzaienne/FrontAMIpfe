@@ -6,6 +6,15 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "package": "com.example.amimobile",
+    "permissions": [
+      "NOTIFICATIONS"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e0b18a9c-19b8-4768-b3e8-24da9c1981f4"
+      }
+    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -18,13 +27,18 @@
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }, 
+      },
       "permissions": [
-        "CAMERA_ROLL"
-      ]
+        "CAMERA_ROLL",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "NOTIFICATIONS"
+      ],
+      "package": "com.example.amimobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"

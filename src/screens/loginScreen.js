@@ -14,6 +14,8 @@ import client from '../API/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { Button } from 'react-native-paper';
+import HeaderWithWaves from '../components/HeaderWithWaves';
+import FooterWithWaves from '../components/FooterWithWaves';
 
 
 
@@ -78,10 +80,12 @@ const LoginScreen = ({ onLogin }) => {
 
     return (
         <ScrollView style={styles.container}>
+            <HeaderWithWaves />
             <ImageBackground style={styles.backgroundImage}>
                 <View style={styles.logoContainer}>
                     <Image source={require('../../assets/AmiLOGO.png')} style={styles.logo} />
                 </View>
+
                 <View style={styles.formContainer}>
                     <View style={styles.card}>
                         <TextInput
@@ -108,8 +112,11 @@ const LoginScreen = ({ onLogin }) => {
                                 color="#ed3026"
                             />
                         </TouchableOpacity>
-                        {/*    <Ionicons name="key-outline" size={22} color='#ed3026' style={styles.icon} /> */}
+
                     </View>
+                    {/*  <TouchableOpacity>
+                        <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
+                    </TouchableOpacity> */}
                     <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                         <Text style={styles.loginButtonText}> Se connecter </Text>
                     </TouchableOpacity>
@@ -138,6 +145,7 @@ const LoginScreen = ({ onLogin }) => {
 
                 </View>
             </ImageBackground>
+            <FooterWithWaves />
         </ScrollView>
     );
 };
@@ -147,7 +155,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         borderColor: COLORS.primary,
-        borderWidth: 20
+        borderWidth: 20,
+        marginTop: 30
     },
     backgroundImage: {
         flex: 1,
@@ -163,6 +172,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)', // Couleur de fond semi-transparente
 
+    },
+    forgotPasswordText: {
+        color: COLORS.primary,
+        textAlign: 'right',
+        fontSize: 9
     },
     modalContent: {
         backgroundColor: '#fff',
@@ -191,11 +205,11 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         marginHorizontal: 10,
-        marginTop: 40,
+        marginTop: 20,
         padding: 20,
         borderRadius: 10,
-        backgroundColor: 'rgba(247,247,247,255)',
-        height: 300
+        backgroundColor: 'white',
+        height: 380
     },
     card: {
         backgroundColor: '#fff',

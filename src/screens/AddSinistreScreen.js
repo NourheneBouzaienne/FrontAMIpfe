@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Image, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-
+import { View, Image, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Alert, Linking, Animated } from 'react-native';
+import SendIntentAndroid from 'react-native-send-intent';
 import MapView, { Marker } from 'react-native-maps';
-
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import * as FileSystem from 'expo-file-system';
@@ -18,7 +17,7 @@ import SelectPicker from 'react-native-form-select-picker';
 import DateField, { YearMonthDateField } from 'react-native-datefield';
 import moment from 'moment';
 
-import { Button, TextInput } from 'react-native-paper';
+import { Button, TextInput, Divider } from 'react-native-paper';
 
 
 
@@ -45,8 +44,27 @@ const AddSinistreScreen = () => {
   const [selectedContract, setSelectedContract] = useState('');
   const [isLoadingContracts, setIsLoadingContracts] = useState(false);
 
+  const [remorquage, setRemorquage] = useState(null);
+
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const [isPhotoConstatSelected, setIsPhotoConstatSelected] = useState(false);
+  const [isPhotoSinistreSelected, setIsPhotoSinistreSelected] = useState(false);
+
+  const [localisation, setLocalisation] = useState(null);
+  const [towingService, setTowingService] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  const previousContract = useRef(selectedContract);
+
+  const [progress, setProgress] = useState(new Animated.Value(0));
+
+
+
 
 
   useEffect(() => {
@@ -67,7 +85,7 @@ const AddSinistreScreen = () => {
       try {
         setIsLoadingContracts(true);
         // Appel API pour récupérer les contrats du client
-        const result = await client.get("/api/auth/Client/ContratsByClient", {
+        const result = await client.get("/api/auth/Client/ContratsSinistre", {
           headers: {
             Authorization: token,
           },
@@ -93,10 +111,42 @@ const AddSinistreScreen = () => {
   const handleDateChange = (value) => {
     handleInputChange('date', value);
   };
+  const getRemorquage = async () => {
+    if (cin.trim() !== '') {
+      try {
+        const res = await client.get('/api/auth/Client/getRemorquage', {
+          headers: {
+            Authorization: token,
+          },
+          params: {
+            numCNT: selectedContract,
+          },
+        });
+        setRemorquage(res.data);
+        console.log(res.data);
+        return res.data;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+  };
 
   useEffect(() => {
     getContrats();
   }, []);
+
+  useEffect(() => {
+    const delay = 500; // Délai en millisecondes
+    const timeoutId = setTimeout(() => {
+      if (selectedContract !== previousContract.current) {
+        getRemorquage();
+        previousContract.current = selectedContract;
+      }
+    }, delay);
+
+    return () => clearTimeout(timeoutId);
+  }, [selectedContract]);
 
   useEffect(() => {
     const getLocation = async () => {
@@ -129,6 +179,8 @@ const AddSinistreScreen = () => {
   const showDatepicker = () => {
     setShowDatePicker(true);
   };
+
+
 
   /*  const handleMapPress = (event) => {
      const { latitude, longitude } = event.nativeEvent.coordinate;
@@ -176,7 +228,8 @@ const AddSinistreScreen = () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
+        //allowsEditing: true,
+        allowsMultipleSelection: true,
         aspect: [4, 3],
         quality: 1,
         base64: true,
@@ -185,6 +238,7 @@ const AddSinistreScreen = () => {
 
       if (!result.canceled) {
         const selectedFiles = result.assets.map(asset => {
+          setIsPhotoConstatSelected(true);
           return {
             uri: asset.uri,
             name: asset.name,
@@ -204,7 +258,8 @@ const AddSinistreScreen = () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
+        //allowsEditing: true,
+        allowsMultipleSelection: true,
         aspect: [4, 3],
         quality: 1,
         base64: true,
@@ -212,6 +267,7 @@ const AddSinistreScreen = () => {
       });
 
       if (!result.canceled) {
+        setIsPhotoSinistreSelected(true);
         const selectedFiles = result.assets.map(asset => {
           return {
             uri: asset.uri,
@@ -246,6 +302,7 @@ const AddSinistreScreen = () => {
         });
 
         if (!result.canceled && result.assets.length > 0) {
+          setIsPhotoSelected(true);
           const selectedFiles = result.assets.map(asset => {
             return {
               uri: asset.uri,
@@ -272,15 +329,75 @@ const AddSinistreScreen = () => {
     );
   };
 
+  /* const getLocalisation = () => {
+    // Mettre à jour l'état de la localisation
+    setLocalisation({ longitude, latitude });
+  };
+  useEffect(() => {
+    if (towingService) {
+      getLocalisation();
+    }
+  }, [towingService]);
+ */
+
+
+  const sendWhatsAppMessage = (message) => {
+    const phoneNumber = '+21629220760'; // Remplacez par le numéro de téléphone du remorqueur
+
+    const whatsappURL = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+
+    Linking.openURL(whatsappURL)
+      .then(() => {
+        console.log('Message WhatsApp envoyé');
+      })
+      .catch((error) => {
+        console.log('Erreur lors de l\'envoi du message WhatsApp :', error);
+      });
+  };
+
+
+  const handleGarantieRemorquage = () => {
+    let message = '';
+
+    const latitude = location.latitude; // Récupérez la latitude depuis l'objet location
+    const longitude = location.longitude; // Récupérez la longitude depuis l'objet location
+    const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`; // Créez le lien de localisation
+
+    //if (towingService) {
+    const locationMessage = `Localisation : ${mapsLink}`;
+    // = `Bonjour j'ai fait un sinistre j'ai besoin de remorquage. ${locationMessage}`;
+    //message = `URGENT : Besoin de remorquage\n\n${locationMessage}\n\nInformations du sinistre :\nNuméro de contrat : ${selectedContract}\nNuméro cin : ${cin}`;
+    message = `URGENT : Besoin de remorquage\n\n${locationMessage}\n`;
+
+    /* } else {
+      message = 'Pas de garantie de remorquage. Pas de localisation disponible.';
+    } */
+    sendWhatsAppMessage(message);
+
+    console.log("Message envoyé")
+  };
+
 
 
   const handleCreateSinistre = async () => {
     if (coordinates.length > 0) {
       const { latitude, longitude } = coordinates[0];
+      setIsSubmitting(true);
+
+      Animated.timing(progress, {
+        toValue: 1,
+        duration: 10000, // Durée de l'animation en millisecondes (ajustez selon vos besoins)
+        useNativeDriver: false
+      }).start();
 
       // Construire l'objet FormData pour envoyer les données et les fichiers
       const formData = new FormData();
       formData.append('numCnt', formValues.numCnt);
+
+      if (remorquage) {
+        console.log('remorquaaaaaaaaaaage', remorquage)
+
+      }
 
       const formattedDate = moment(formValues.date).format('YYYY-MM-DD');
       formData.append('date', formattedDate);
@@ -333,7 +450,7 @@ const AddSinistreScreen = () => {
 
       // Appel à votre API backend pour créer le sinistre avec les données et les fichiers
       try {
-        const response = await fetch('http://192.168.1.18:8060/api/auth/sinistre/addSinistre', {
+        const response = await fetch('http://192.168.1.23:8060/api/auth/sinistre/addSinistre', {
           method: 'POST',
           body: formData,
           headers: {
@@ -346,16 +463,50 @@ const AddSinistreScreen = () => {
 
         const sinistre = data; // Utiliser les données JSON renvoyées
         const referenceCode = sinistre.referenceCode;
-        Alert.alert('Votre sinistre est déclaré avec succès !', `Le code de référence de ce sinistre : ${referenceCode}`);
 
-        console.log(formData);
+        if (remorquage) {
+          Alert.alert(
+            'Garantie de remorquage',
+            'Avez-vous une garantie de remorquage ?',
+            [
+              {
+                text: 'Oui',
+                onPress: () => {
+                  setTowingService(true);
+                  handleGarantieRemorquage();
+                }
+              },
+              {
+                text: 'Non',
+                onPress: () => setTowingService(false),
+                style: 'cancel'
+              }
+            ]
+          );
+          setTimeout(() => {
+            Alert.alert(
+              'Votre sinistre est déclaré avec succès !',
+              `Le code de référence de ce sinistre : ${referenceCode}`
+            )
+          }, 6000);
 
-
+        } else {
+          Alert.alert(
+            'Votre sinistre est déclaré avec succès !',
+            `Le code de référence de ce sinistre : ${referenceCode}`
+          );
+        }
       } catch (error) {
         console.error('Erreur lors de la création du sinistre:', error);
+      } finally {
+        setIsSubmitting(false); // Désactiver le chargement
+        setProgress(new Animated.Value(0)); // Réinitialiser l'animation de chargement progressif
       }
     }
+
   };
+
+
 
   return (
     <View style={styles.container}>
@@ -386,30 +537,30 @@ const AddSinistreScreen = () => {
       <View style={styles.steps}>
         {activeStep === 1 && (
           <View style={styles.formCont} >
-            <Text></Text>
+            <Text style={{ fontFamily: 'Montserrat-Regular', marginBottom: 5, color: '#204393', marginTop: 50 }}> Numéro contrat </Text>
             <View >
               <SelectPicker
-                onSelectedStyle={styles.selectedOptionStyle}
+                onSelectedStyle={{ color: '#d9252c', fontFamily: 'Montserrat-Regular' }}
                 placeholder='Sélectionnez un contrat'
-                placeholderStyle={{ color: '#ed3026', fontFamily: 'Montserrat-Regular', fontSize: 12 }}
+                placeholderStyle={{ color: '#d9252c', fontFamily: 'Montserrat-Regular', fontSize: 12 }}
                 selectedValue={selectedContract}
                 containerStyle={{
                   backgroundColor: COLORS.backgroundNav,
                   borderWidth: 2,
                   borderRadius: 10,
                   marginBottom: 1,
-                  borderColor: '#ed3026',
+                  borderColor: '#d9252c',
                 }}
                 doneButtonText='Done'
-                doneButtonTextStyle={{ color: '#ed3026', fontFamily: 'Montserrat-Regular' }}
+                doneButtonTextStyle={{ color: '#d9252c', fontFamily: 'Montserrat-Regular' }}
                 onValueChange={(value) => handleContractChange(value)}
               >
                 {isLoadingContracts ? (
-                  <ActivityIndicator color="#ed3026" />
+                  <ActivityIndicator color='#d9252c' />
                 ) : (
                   contractList.map((contract) => (
                     <SelectPicker.Item
-                      containerStyle={{ color: '#ed3026' }}
+                      containerStyle={{ color: '#d9252c' }}
                       key={contract.NUMCNT}
                       value={contract.NUMCNT}
                       label={contract.NUMCNT}
@@ -420,19 +571,21 @@ const AddSinistreScreen = () => {
 
             </View>
 
-            <Text style={{ fontWeight: 'bold', marginBottom: 5, color: '#204393', marginTop: 50 }}> Date de sinistre </Text>
+            <Text style={{ marginBottom: 5, color: '#204393', marginTop: 50, fontFamily: 'Montserrat-Regular' }}> Date de sinistre </Text>
             <DateField
               value={formValues.date}
               defaultValue={new Date()} onSubmit={(value) => handleDateChange(value)}
             />
             <TextInput
-              placeholder="Description des circonstances"
-              mode="flat"
-              activeUnderlineColor='red'
-              activeOutlineColor='red'
+              label="Description des circonstances"
+              mode="outlined"
+              activeOutlineColor='#204393'
+              outlineColor="#fbfbfb"
               value={formValues.description}
               onChangeText={(text) => handleInputChange('description', text)}
-              style={styles.input}
+              multiline={true} // Activer le mode multi-lignes
+              numberOfLines={7} // Définir le nombre de lignes à afficher
+              style={{ marginTop: 50, minHeight: 100 }} // Ajuster la hauteur minimale souhaitée
             />
           </View>
         )}
@@ -446,15 +599,25 @@ const AddSinistreScreen = () => {
           <PhotoUpload photos={sinistrePhotos} setPhotos={setSinistrePhotos} />
  */}
             <View style={styles.photoContainer}>
-              <Text style={styles.label}>Copie du constat  </Text>
-              <Button style={{ width: 200, margin: 5, borderColor: "#ed3026", backgroundColor: "#204393" }}
-                textColor="white"
-                title="Ajouter des photos" onPress={pickImagesConstat} icon="camera" mode="contained" > Ajouter des photos </Button>
+              <View style={styles.photoCard}>
+                <Text style={styles.label}>Copie du constat  </Text>
+                <Button style={{ width: 200, margin: 5, borderColor: "#ed3026", backgroundColor: "#204393" }}
+                  textColor="white"
+                  title="Ajouter des photos" onPress={pickImagesConstat} icon="camera" mode="contained" > Ajouter des photos </Button>
+
+                {isPhotoConstatSelected && <Text style={styles.photoSelected}> Copie constat est selectionnée</Text>}
+              </View>
+              <Divider />
+
               <Text style={styles.label}>Photos des dommages </Text>
               <Button style={{ width: 200, margin: 5, borderColor: "#ed3026", backgroundColor: "#204393" }}
                 textColor="white"
                 title="Ajouter des photos" onPress={pickImagesSinistre} icon="camera" mode="contained" > Ajouter des photos </Button>
+
+              {/* Conditionally render the label */}
+              {isPhotoSinistreSelected && <Text style={styles.photoSelected}>Les photos des dommages sont selectionées</Text>}
             </View>
+
           </View>
         )}
 
@@ -485,12 +648,21 @@ const AddSinistreScreen = () => {
                 Ajuster aux limites
               </Button>
 
-              <Button style={{ width: 200, margin: 5, borderColor: "#ed3026" }}
-                textColor="#ed3026"
+
+
+              <Button
+                style={[
+                  { width: 200, margin: 5, borderColor: '#d9252c' },
+                  isSubmitting && styles.loadingButton // Ajouter la classe de chargement lorsque isSubmitting est vrai
+                ]}
+                textColor='#d9252c'
                 icon="check"
                 mode="outlined"
-                onPress={handleCreateSinistre} title="Créer le sinistre">
-                Déclarer le sinistre
+                title="Annuler"
+                onPress={handleCreateSinistre}
+                disabled={isSubmitting} // Désactiver le bouton pendant le chargement
+              >
+                {isSubmitting ? 'En cours...' : 'Déclarer le sinistre'}
               </Button>
             </View>
           </View>
@@ -507,7 +679,7 @@ const AddSinistreScreen = () => {
         )}
         {activeStep < 3 && (
           <Button onPress={() => setActiveStep(activeStep + 1)}
-            style={{ width: 150, margin: 5, borderColor: "#ed3026", backgroundColor: "#ed3026" }}
+            style={{ width: 150, margin: 5, borderColor: '#d9252c', backgroundColor: '#d9252c' }}
             textColor="white"
             icon="arrow-expand-right"
             mode="contained"
@@ -527,12 +699,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     //margin: 20,
-    //marginTop: -100
+    //marginTop: -100?
+    backgroundColor: 'light'
   },
   photoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10
+  },
+  photoCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 40
   },
   stepsContainer: {
     flexDirection: 'row',
@@ -559,7 +737,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepActive: {
-    backgroundColor: '#ed3026',
+    backgroundColor: '#d9252c',
   },
   progress: {
     width: 70,
@@ -568,7 +746,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   progressActive: {
-    backgroundColor: '#ed3026',
+    backgroundColor: '#d9252c',
   },
   stepText: {
     color: 'white',
@@ -588,8 +766,9 @@ const styles = StyleSheet.create({
     elevation: 4,
     padding: 8,
     width: 350, // Remplacez par la valeur de largeur souhaitée
-    height: 500
+    height: 500,
   },
+
   input: {
     //marginBottom: 16,
     paddingHorizontal: '20%',
@@ -602,6 +781,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
     color: COLORS.primary,
+    fontFamily: 'Montserrat-Regular',
+  },
+  photoSelected: {
+    fontSize: 12,
+    marginBottom: 10,
+    color: '#d9252c',
     fontFamily: 'Montserrat-Regular',
   },
   selectContainer: {
@@ -636,6 +821,9 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     marginTop: 10
   },
+  loadingButton: {
+    backgroundColor: '#ffcccc' // Couleur de fond pour le chargement
+  }
 
 });
 

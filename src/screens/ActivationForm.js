@@ -12,7 +12,7 @@ const ActivationForm = ({ navigation }) => {
     const handleActivation = async () => {
         try {
             const res = await client.post(
-                `http://192.168.90.125:8060/api/auth/activate?activationCode=${activationCode}`
+                `http://192.168.1.23:8060/api/auth/activate?activationCode=${activationCode}`
             );
             console.log(res);
 
@@ -33,7 +33,7 @@ const ActivationForm = ({ navigation }) => {
         <ScrollView style={styles.container}>
             <ImageBackground style={styles.backgroundImage}>
                 <View style={styles.logoContainer}>
-                    <Image source={require('../../assets/verified.png')} style={styles.logo} />
+                    <Image source={require('../../assets/verifiedICON.png')} style={styles.logo} />
                 </View>
                 <View style={styles.formContainer}>
                     <Text style={styles.text}> Vous avez reçu un code d'activation par mail ! </Text>
@@ -62,12 +62,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         borderColor: COLORS.primary,
-        borderWidth: 20
+        borderWidth: 20,
+        marginTop: 30
 
     },
     backgroundImage: {
         flex: 1,
         resizeMode: 'cover',
+        marginTop: 100
     },
     logoContainer: {
         alignItems: 'center',

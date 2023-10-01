@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "551583321145",
+    "project_id": "ami-pfe",
+    "storage_bucket": "ami-pfe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551583321145:android:700218788f4416492651e8",
+        "android_client_info": {
+          "package_name": "com.example.amimobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551583321145-c8p5hdeer4fm46depnuna0ppvvgp47iu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEH4nNg0dDkgeOS0AAPW8LXw0HXQw6Vu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "551583321145-c8p5hdeer4fm46depnuna0ppvvgp47iu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

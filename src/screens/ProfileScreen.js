@@ -8,7 +8,7 @@ import COLORS from '../const/colors';
 import * as Font from 'expo-font';
 import { useNavigation } from '@react-navigation/native';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ route }) => {
     const [profile, setProfile] = useState({})
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -39,6 +39,7 @@ const ProfileScreen = () => {
             return null;
         }
     };
+
     useEffect(() => {
         const fetchData = async () => {
             const result = await getProfil();

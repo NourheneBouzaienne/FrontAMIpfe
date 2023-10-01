@@ -104,8 +104,11 @@ const AddDemande = () => {
                         doneButtonTextStyle={{ color: '#ed3026', fontFamily: 'Montserrat-Regular' }}
                         onValueChange={text => setCateg(text)}
                     >
-                        <SelectPicker.Item value='option1' label='option1' />
-                        <SelectPicker.Item value='option2' label='option2' />
+                        <SelectPicker.Item value='Devis' label='Devis' />
+                        <SelectPicker.Item value='Sinsitre' label='Sinsitre' />
+                        <SelectPicker.Item value='Quittance' label='Quittance' />
+                        <SelectPicker.Item value='Contrat' label='Contrat' />
+
                     </SelectPicker>
                 </View>
 

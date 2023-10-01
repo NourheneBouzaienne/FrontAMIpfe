@@ -254,7 +254,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         borderColor: COLORS.primary,
-        borderWidth: 20
+        borderWidth: 20,
+        marginTop: 30
     },
     selectBar: {
         flexDirection: 'row',
@@ -262,12 +263,12 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.backgroundNav,
         borderWidth: 1,
         borderRadius: 5,
-        marginBottom: 1,
+        marginBottom: 8,
         borderColor: '#ed3026',
 
     },
     selectPicker: {
-        width: '94%'
+        width: '94%',
     },
     iconSelect: {
         width: '6%',
@@ -285,15 +286,18 @@ const styles = StyleSheet.create({
         width: 290,
         height: 100,
         marginRight: 30,
-        marginLeft: 30
+        marginLeft: 30,
+        marginTop: 5
+
+
     },
     formContainer: {
         marginHorizontal: 10,
         marginTop: 10,
         padding: 10,
         borderRadius: 10,
-        backgroundColor: 'rgba(247,247,247,255)',
-        height: 590
+        backgroundColor: 'white',
+        height: 640
     },
     card: {
         backgroundColor: '#fff',

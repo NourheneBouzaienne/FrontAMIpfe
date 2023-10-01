@@ -16,6 +16,8 @@ const profileView = ({ route }) => {
 
     const { item } = route.params;
 
+
+
     const [profile, setProfile] = useState({})
     const [username, setUsername] = useState(item.username);
     const [password, setPassword] = useState('');
@@ -25,7 +27,9 @@ const profileView = ({ route }) => {
     const [name, setName] = useState(item.name);
 
     const navigation = useNavigation();
-
+    const updateProfileData = (newProfileData) => {
+        setProfile(newProfileData);
+    };
     const updateProfile = async () => {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
@@ -50,6 +54,7 @@ const profileView = ({ route }) => {
                     },
                 }
             )
+            updateProfileData(res.data);
             navigation.navigate("Mon Profil");
 
 

@@ -61,7 +61,6 @@ const DetailDemande = ({ route, navigation }) => {
                         <Text
                             style={styles.label}> Vous pouvez suivre l'état de votre réclamation  </Text>
                     </View>
-
                     <Text
                         style={styles.description}
 

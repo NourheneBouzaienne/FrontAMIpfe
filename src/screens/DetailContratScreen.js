@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import client from '../API/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FlipCard from 'react-native-flip-card'
+import { Button } from 'react-native-paper';
 
 
 const DetailContratScreen = ({ route, navigation }) => {
@@ -134,7 +135,7 @@ const DetailContratScreen = ({ route, navigation }) => {
                                         <View style={styles.iconContainer}>
                                             <MaterialCommunityIcons name="calendar-end" size={25} color='#ed3026' />
                                         </View>
-                                        <Text style={styles.time}>{formatDate(item.FINCNT)}</Text>
+                                        <Text style={styles.time}>{formatDate(item.FINEFFET)}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -159,6 +160,14 @@ const DetailContratScreen = ({ route, navigation }) => {
                                         }
                                     })()}
                                 </Text>
+                            </View>
+
+
+                            <View>
+                                <Button style={{ marginLeft: '30%', marginTop: 20, width: 140, backgroundColor: '#ed3026' }}
+                                    textColor="white"
+                                    icon="laser-pointer"
+                                    mode="contained">GARANTIES</Button>
                             </View>
                         </View>
 
